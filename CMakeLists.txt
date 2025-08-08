@@ -24,6 +24,8 @@ set(PICO_BOARD pico_w)
 # set(WIFI_PASSWORD "Your Password")
 include(wlan_setup_data.cmake)
 
+# WARNING!!! Statments order MATTERS!!!
+
 # Standard cmake mandatory
 cmake_minimum_required(VERSION 3.10)
 
@@ -32,6 +34,7 @@ cmake_minimum_required(VERSION 3.10)
 # is what will connect our project to the SDK when building
 include(pico_sdk_import.cmake)
 
+# CMake mandatory: the name of the project.
 project(drip_irrigation_controller)
 
 # This refer to the language standard both for C and C++
@@ -39,10 +42,31 @@ project(drip_irrigation_controller)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
+# No idea what this does exactly...
+# "It sets up the build environment, including toolchain configuration,
+# and prepares the SDK for use by your project."
+# "[It] acts as a bridge between your project and the Raspberry Pi Pico
+# SDK, ensuring that everything is set up correctly for building
+# your code"
 pico_sdk_init()
 
+# This tells the source files that must be compiled to build
+# the binary (called 'drip' here).
+# Placing header files here makes no difference but some IDEs
+# do it to list all the files of the project.
 add_executable(drip main.c)
 
+# HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
+
+pico_enable_stdio_usb(drip ENABLED)
+pico_enable_stdio_uart(drip DISABLED)
+
+# HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
+
+# This builds more output files: uf2, assembler, etc.
+# Without it only a .elf is compiled.
 pico_add_extra_outputs(drip)
 
+# This links to the resulting binary (e.g. drip) the indicated
+# libraries (e.g. pico_stdlib)
 target_link_libraries(drip pico_stdlib)
