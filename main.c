@@ -32,6 +32,9 @@ pico_util
 // For pico board the on-board led does connect to a RP-2040 gpio, the pin 25.
 const uint ON_BOARD_LED = CYW43_WL_GPIO_LED_PIN;
 
+// Th gpio for the electrovalve relay control
+const uint EV_REL_CTRL = 0;
+
 bool	on_board_led_status;
 
 void	timer_alarm(void)
@@ -42,11 +45,13 @@ void	timer_alarm(void)
 	{
 		cyw43_arch_gpio_put(ON_BOARD_LED, 0);
 		on_board_led_status = 0;
+		gpio_put(EV_REL_CTRL, 1);
 	}
 	else
 	{
 		cyw43_arch_gpio_put(ON_BOARD_LED, 1);
 		on_board_led_status = 1;
+		gpio_put(EV_REL_CTRL, 0);
 	}
 }
 
@@ -62,11 +67,11 @@ int main()
 	cyw43_arch_gpio_put(ON_BOARD_LED, 1);
 	on_board_led_status = 1;
 
-	//gpio_init(ON_BOARD_LED);
-	//gpio_set_dir(ON_BOARD_LED, GPIO_OUT);
+	gpio_init(EV_REL_CTRL);
+	gpio_set_dir(EV_REL_CTRL, GPIO_OUT);
 
 
-	//gpio_put(ON_BOARD_LED, 1);
+	gpio_put(EV_REL_CTRL, 0);
 
 
 
