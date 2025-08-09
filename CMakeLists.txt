@@ -58,7 +58,10 @@ add_executable(drip main.c)
 
 # HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
 
+# So far to get USB serial for debugging purposes
 pico_enable_stdio_usb(drip ENABLED)
+
+# Enabled by default (I think), not used.
 pico_enable_stdio_uart(drip DISABLED)
 
 # HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
@@ -69,4 +72,6 @@ pico_add_extra_outputs(drip)
 
 # This links to the resulting binary (e.g. drip) the indicated
 # libraries (e.g. pico_stdlib)
-target_link_libraries(drip pico_stdlib)
+# The cyw43 so far is to use the pico_w on-board LED which is controlled
+# by the wifi chip.
+target_link_libraries(drip pico_stdlib hardware_rtc pico_cyw43_arch_none)
