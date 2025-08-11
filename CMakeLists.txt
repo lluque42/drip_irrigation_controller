@@ -20,8 +20,12 @@ set(PICO_BOARD pico_w)
 #
 # The "wlan_setup_data.cmake" file must be created in the same
 # directory as this file and its content should be:
-# set(WIFI_SSID "Your Network")
-# set(WIFI_PASSWORD "Your Password")
+# NOOOOOO	set(WIFI_SSID "Your Network")
+# NOOOOOO	set(WIFI_PASSWORD "Your Password")
+# The above won't pass them as macro definitions to the compiler.
+# Instead this should do the trick:
+# add_compile_definitions(WIFI_SSID=Your_Network)
+# add_compile_definitions(WIFI_PASSWORD=Your_Password)
 include(wlan_setup_data.cmake)
 
 # WARNING!!! Statments order MATTERS!!!
@@ -56,6 +60,12 @@ pico_sdk_init()
 # do it to list all the files of the project.
 add_executable(drip main.c)
 
+
+message("[lluque CMakeLists] Some information:")
+message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
+
+
+
 # HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
 
 # So far to get USB serial for debugging purposes
@@ -64,7 +74,19 @@ pico_enable_stdio_usb(drip ENABLED)
 # Enabled by default (I think), not used.
 pico_enable_stdio_uart(drip DISABLED)
 
+# This tells the compiler to look for headers in the same directory
+# the CMakeLists.txt is.
+target_include_directories(drip PRIVATE
+	${CMAKE_CURRENT_LIST_DIR} )
+
+
 # HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
+
+
+
+
+
+
 
 # This builds more output files: uf2, assembler, etc.
 # Without it only a .elf is compiled.
@@ -72,6 +94,19 @@ pico_add_extra_outputs(drip)
 
 # This links to the resulting binary (e.g. drip) the indicated
 # libraries (e.g. pico_stdlib)
+# The pico_stdlib library agregates:
+#   * hardware_divider
+#   * hardware_gpio
+#   * hardware_uart
+#   * pico_runtime
+#   * pico_platform
+#   * pico_stdio
+#   * pico_time
+#   * pico_util
 # The cyw43 so far is to use the pico_w on-board LED which is controlled
 # by the wifi chip.
-target_link_libraries(drip pico_stdlib hardware_rtc pico_cyw43_arch_none)
+target_link_libraries(drip
+	pico_stdlib
+	hardware_rtc
+	pico_cyw43_arch_lwip_poll)		# The traditional polling option
+#pico_cyw43_arch_lwip_threadsafe_background)	# With interrupts

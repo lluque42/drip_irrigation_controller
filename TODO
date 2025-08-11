@@ -10,6 +10,9 @@
 ### TODO's #####################################################################
 
 * Keep the README.md promises.
+* Periodically check wifi link and attempt to re-connect.
+* Try the interrupt approach which probable is less power consuming.
+
 
 ################################################################################
 ################################################################################
