@@ -12,7 +12,9 @@
 * Keep the README.md promises.
 * Periodically check wifi link and attempt to re-connect.
 * Try the interrupt approach which probable is less power consuming.
-
+* Add the authentication types in my wlan setup cmake.
+* Find an easy way to get the system time with cmake in an amicable
+format to use in the code.
 
 ################################################################################
 ################################################################################

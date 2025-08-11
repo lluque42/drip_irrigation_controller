@@ -28,6 +28,11 @@ set(PICO_BOARD pico_w)
 # add_compile_definitions(WIFI_PASSWORD=Your_Password)
 include(wlan_setup_data.cmake)
 
+
+# File with the default timers parameters.
+include(timers_default_data.cmake)
+
+
 # WARNING!!! Statments order MATTERS!!!
 
 # Standard cmake mandatory
@@ -58,7 +63,12 @@ pico_sdk_init()
 # the binary (called 'drip' here).
 # Placing header files here makes no difference but some IDEs
 # do it to list all the files of the project.
-add_executable(drip main.c)
+add_executable(drip
+	src/main.c
+	src/drip_wifi_set_ip4_addr.c
+	src/drip_io_init.c
+	src/drip_rtc_init.c
+)
 
 
 message("[lluque CMakeLists] Some information:")
@@ -77,7 +87,7 @@ pico_enable_stdio_uart(drip DISABLED)
 # This tells the compiler to look for headers in the same directory
 # the CMakeLists.txt is.
 target_include_directories(drip PRIVATE
-	${CMAKE_CURRENT_LIST_DIR} )
+	${CMAKE_CURRENT_LIST_DIR}/include)
 
 
 # HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS

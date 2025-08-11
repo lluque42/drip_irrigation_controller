@@ -1,0 +1,9 @@
+add_compile_definitions(DRIP_WIFI_SSID="your_network")
+add_compile_definitions(DRIP_WIFI_PASSWORD="your_password")
+# Change for your desired static address for the controller.
+# Make sure your DRIP_IP4_ADDRESS is outside the pool of your DHCP server
+add_compile_definitions(DRIP_IP4_ADDRESS="192.168.1.69")
+# Your mask
+add_compile_definitions(DRIP_IP4_MASK="255.255.255.0")
+# Change with your router address
+add_compile_definitions(DRIP_IP4_DEF_GW="192.168.1.1")
