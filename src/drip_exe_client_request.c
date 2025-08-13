@@ -1,34 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   drip_rtc_init.c                                    :+:      :+:    :+:   */
+/*   drip_exe_client_request.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 22:29:02 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 20:06:59 by lluque           ###   ########.fr       */
+/*   Created: 2025/08/13 22:55:23 by lluque            #+#    #+#             */
+/*   Updated: 2025/08/13 22:57:17 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-int	drip_rtc_init(void)
+char	*drip_exe_client_request(char *request)
 {
-	datetime_t	time;
-	
-	time = drip_rtc_str2datetime(DRIP_BUILD_TIME);
-	drip_rtc_datetime_print(time);
-	rtc_init();
-	if (!rtc_set_datetime(&time))
-	{
-		printf("Error setting time\n");
-		return (0);
-	}
-	sleep_ms(1000);
-	if (!rtc_running())
-	{
-		printf("After setting the time the RTC is not running\n");
-		return (0);
-	}
-	return (1);
+	if (request[0] == '1' && strlen(request) == 1)
+		gpio_put(EV_REL_CTRL, 1);
+	if (request[0] == '2' && strlen(request) == 1)
+		gpio_put(LIGHTS_REL_CTRL, 1);
+	if (request[0] == '3' && strlen(request) == 1)
+		gpio_put(EV_REL_CTRL, 0);
+	if (request[0] == '4' && strlen(request) == 1)
+		gpio_put(LIGHTS_REL_CTRL, 0);
+	return ("ok");
 }

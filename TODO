@@ -1,7 +1,26 @@
 ################################################################################
 #### FOR NEXT COMMIT DESCRIPTION ###############################################
 
+The UDP server that receives and echoes bytes is working.
+	When a NUL terminated c-string "1" is received, the water relay coil is
+	energized, with "3" it's turned off. The same for the lights relay with
+	"2" (ON) and "4" (OFF).
 
+The authentication type was added to the wlan_setup_data.cmake.template using
+the macros defined by cyw43:
+
+#define 	CYW43_AUTH_OPEN   (0)
+#define 	CYW43_AUTH_WPA_TKIP_PSK   (0x00200002)
+#define 	CYW43_AUTH_WPA2_AES_PSK   (0x00400004)
+#define 	CYW43_AUTH_WPA2_MIXED_PSK   (0x00400006)
+#define 	CYW43_AUTH_WPA3_SAE_AES_PSK   (0x01000004)
+#define 	CYW43_AUTH_WPA3_WPA2_AES_PSK
+
+A BUILD_TIME was generated at the cmake level and pass as a macro to initialize
+the RTC. Some new functions were added to manipulate the chosen format to set
+the time also via udp client request (very soon) and NTP (may be).
+
+Improvement of the specifications details (see TODO).
 
 ################################################################################
 ################################################################################
@@ -9,12 +28,35 @@
 ################################################################################
 ### TODO's #####################################################################
 
+* Define the settings, formats AND their defaults in the		CMakeLists.txt <<<<<<<<<<<<<<
+	* Irrigation time of day (IToD)
+	* Irrigate every X days (IeXD)
+	* Duration of irrigation (DoI)
+	* Turn on lights time of day (LToD)
+	* Turn on lights every X days (LeXD)
+	* Duration of lights turned on (DoL)
+
+* Define the remote commands:							drip_exe_client_request.c <<<<<<<<<<<
+	* Set datetime.
+	* Set IToD IeXD DoI
+	* Set LToD LeXD DoL.
+	* Get datetime.
+	* Get IToD IeXD DoI
+	* Get LToD LeXD DoL.
+	* Manual on lights (MONL).
+	* Manual off lights (MOFFL).
+	* Manual on water (MONW).
+	* Manual off water (MOFFW).
+	* Timed on lights (TONL).
+	* Timed on irigation (TONW).
+
+* Put some data into the binary that may allow use it if code is lost.
 * Keep the README.md promises.
 * Periodically check wifi link and attempt to re-connect.
+	* Half way there, may be the wifi_connected variable should be abandon
+	in favor of "int cyw43_wifi_link_status (cyw43_t *self, int itf)"
 * Try the interrupt approach which probable is less power consuming.
-* Add the authentication types in my wlan setup cmake.
-* Find an easy way to get the system time with cmake in an amicable
-format to use in the code.
+* Set up the watchdog.
 
 ################################################################################
 ################################################################################
@@ -22,7 +64,14 @@ format to use in the code.
 ################################################################################
 ### DONE TODO's ################################################################
 
-
+* Flash the settings?
+* NTP?
+* OTA update?
+* Add the authentication types in my wlan setup cmake.
+* RTC:
+	* Find an easy way to get the system time with cmake in an amicable
+format to use in the code.
+	* The format should be friendly for: cmake, alarms, timers, ntc client.
 
 ################################################################################
 ################################################################################

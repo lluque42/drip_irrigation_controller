@@ -6,30 +6,18 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:46:49 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/11 22:31:39 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/13 21:52:09 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-bool	on_board_led_status;
+bool	on_board_led_status = 0;
+bool	wifi_connected = 0;
 
 void	timer_alarm(void)
 {
-	
-	printf("Wakey wakey hands off snakey, world\n");
-	if (on_board_led_status)
-	{
-		cyw43_arch_gpio_put(ON_BOARD_LED, 0);
-		on_board_led_status = 0;
-		gpio_put(EV_REL_CTRL, 1);
-	}
-	else
-	{
-		cyw43_arch_gpio_put(ON_BOARD_LED, 1);
-		on_board_led_status = 1;
-		gpio_put(EV_REL_CTRL, 0);
-	}
+	printf("[timer_alarm] Alarm works\n");
 }
 
 int main()
@@ -37,95 +25,46 @@ int main()
 	datetime_t	alarm_pattern;
 
 	stdio_init_all();
-
+	sleep_ms(1000);
 	if (cyw43_arch_init())
-		while (1)
-			printf("Error initializing cyw43, I'm hanging myself!\n");
-
+		printf("Error initializing cyw43\n");
 	cyw43_arch_gpio_put(ON_BOARD_LED, 1);
 	on_board_led_status = 1;
-
 	drip_io_init();
-
+	hard_assert(drip_rtc_init());	// No way this could work without a clock
 
 	// Values of -1 indicate don't care, i.e. no need to match.
-	alarm_pattern.year = -1;
-	alarm_pattern.month = -1;
-	alarm_pattern.day = -1;
-	alarm_pattern.dotw = -1;
-	alarm_pattern.hour = -1;
-	alarm_pattern.min = -1;
-	alarm_pattern.sec = 0;
+	alarm_pattern = drip_rtc_str2datetime("-1.-1.-1.-1.-1.-1.0");
+	rtc_set_alarm(&alarm_pattern, timer_alarm);
 
-	//rtc_set_alarm(&alarm_pattern, timer_alarm);
-
-	sleep_ms(5000);
-	// This enables the Wi-Fi in Station mode such that connections
-	// can be made to other Wi-Fi Access Points
-	cyw43_arch_enable_sta_mode();
-
-	// This connects to the wifi
-	int	result = cyw43_arch_wifi_connect_timeout_ms(DRIP_WIFI_SSID,
-			DRIP_WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK,
-			DRIP_WIFI_CONNECT_TIMEOUT_MS);
-	if (result != 0)
+	// This function enables wifi station mode (to connect to other APs),
+	// connects to the wifi and if successful sets the static IPv4
+	// address and launches the udp server and other network services.
+	if (!drip_wifi_init())
 	{
-		printf("Couldn't connect, error: %d\n", result);
-		cyw43_arch_gpio_put(ON_BOARD_LED, 0);
-		gpio_put(EV_REL_CTRL, 1);
-		gpio_put(LIGHTS_REL_CTRL, 1);
-		sleep_ms(1000);
-		
+		wifi_connected = 0;
 	}
-	cyw43_arch_gpio_put(ON_BOARD_LED, 1);
-	gpio_put(EV_REL_CTRL, 0);
-	gpio_put(LIGHTS_REL_CTRL, 0);
-
-	//hard_assert(drip_wifi_set_ip4_addr());
-	drip_wifi_set_ip4_addr();
-
 	while (1)
 	{
 		cyw43_arch_poll();
-
-/*
-void cyw43_arch_wait_for_work_until (absolute_time_t until)
-Sleep until there is cyw43_driver work to be done.
-*/
-
-
-		printf("Wakey wakey hands off snakey, world\n");
+		if (wifi_connected)
+			sleep_ms(250);
+		else
+			sleep_ms(1500);
 		if (on_board_led_status)
 		{
 			cyw43_arch_gpio_put(ON_BOARD_LED, 0);
 			on_board_led_status = 0;
-			gpio_put(EV_REL_CTRL, 1);
 		}
 		else
 		{
 			cyw43_arch_gpio_put(ON_BOARD_LED, 1);
 			on_board_led_status = 1;
-			gpio_put(EV_REL_CTRL, 0);
 		}
-		sleep_ms(2000);
+		/*
+		void cyw43_arch_wait_for_work_until (absolute_time_t until)
+		Sleep until there is cyw43_driver work to be done.
+		*/
 	}
 	cyw43_arch_deinit();
 }
-//		char		time_str[256];
-//
-//		if (!rtc_get_datetime(&time))
-//			while (1)
-//				printf("Error getting time, I'm hanging myself!\n");
-//		sleep_ms(1124);
-//		datetime_to_str(time_str, sizeof(256), &time);
-////		printf("Hello world, the time is: %s\n", time_str);
-//		printf("Hello world, the time is: %d-%d-%d-[%d]_%d:%d:%d\n",
-//			time.year,
-//			time.month,
-//			time.day,
-//			time.dotw,
-//			time.hour,
-//			time.min,
-//			time.sec);
-//		sleep_ms(1145);
-//

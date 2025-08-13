@@ -1,34 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   drip_rtc_init.c                                    :+:      :+:    :+:   */
+/*   drip_rtc_datetime_print.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 22:29:02 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 20:06:59 by lluque           ###   ########.fr       */
+/*   Created: 2025/08/13 20:03:50 by lluque            #+#    #+#             */
+/*   Updated: 2025/08/13 20:04:05 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-int	drip_rtc_init(void)
+void	drip_rtc_datetime_print(datetime_t time)
 {
-	datetime_t	time;
-	
-	time = drip_rtc_str2datetime(DRIP_BUILD_TIME);
-	drip_rtc_datetime_print(time);
-	rtc_init();
-	if (!rtc_set_datetime(&time))
-	{
-		printf("Error setting time\n");
-		return (0);
-	}
-	sleep_ms(1000);
-	if (!rtc_running())
-	{
-		printf("After setting the time the RTC is not running\n");
-		return (0);
-	}
-	return (1);
+	printf("\
+			year = %d\n\
+			month = %d\n\
+			day = %d\n\
+			dotw = %d\n\
+			hour = %d\n\
+			min = %d\n\
+			sec = %d\n",
+			time.year,
+			time.month,
+			time.day,
+			time.dotw, 
+			time.hour,
+			time.min,
+			time.sec);
 }

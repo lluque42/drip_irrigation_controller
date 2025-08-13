@@ -1,0 +1,3 @@
+[submodule "test/udp_tx_rx"]
+	path = test/udp_tx_rx
+	url = https://github.com/lluque42/udp_tx_rx.git

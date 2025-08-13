@@ -32,6 +32,8 @@ include(wlan_setup_data.cmake)
 # File with the default timers parameters.
 include(timers_default_data.cmake)
 
+string(TIMESTAMP BUILD_TIME "%Y.%m.%d.%w.%H.%M.%S")
+add_compile_definitions(DRIP_BUILD_TIME=\"${BUILD_TIME}\")
 
 # WARNING!!! Statments order MATTERS!!!
 
@@ -65,16 +67,21 @@ pico_sdk_init()
 # do it to list all the files of the project.
 add_executable(drip
 	src/main.c
+	src/drip_wifi_init.c
 	src/drip_wifi_set_ip4_addr.c
+	src/drip_wifi_print_pbufchain.c
+	src/drip_wifi_recv_callback.c
+	src/drip_wifi_udp_server_init.c
 	src/drip_io_init.c
 	src/drip_rtc_init.c
+	src/drip_rtc_datetime_print.c
+	src/drip_rtc_str2datetime.c
+	src/drip_exe_client_request.c
 )
-
 
 message("[lluque CMakeLists] Some information:")
 message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
-
-
+message(STATUS "BUILD_TIME: ${BUILD_TIME}")
 
 # HERE THE COMPONENT SPECIFIC CMAKE FUNCTIONS
 
