@@ -6,18 +6,29 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:46:49 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 21:52:09 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/14 13:23:27 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-bool	on_board_led_status = 0;
-bool	wifi_connected = 0;
+bool			on_board_led_status = 0;
+bool			wifi_connected = 0;
+t_drip_settings *drip_settings = NULL;
 
 void	timer_alarm(void)
 {
+	datetime_t	t;
+	char		time_str[200];
+
 	printf("[timer_alarm] Alarm works\n");
+	if (!rtc_get_datetime(&t))
+		printf("[timer_alarm] RTC not working\n");
+	else
+	{
+		datetime_to_str(time_str, sizeof(time_str), &t);
+		printf("%s\n", time_str);
+	}
 }
 
 int main()
@@ -31,10 +42,18 @@ int main()
 	cyw43_arch_gpio_put(ON_BOARD_LED, 1);
 	on_board_led_status = 1;
 	drip_io_init();
+
+
+
+	drip_settings = drip_load_settings_default();
+	hard_assert(drip_settings != NULL);
+
+
 	hard_assert(drip_rtc_init());	// No way this could work without a clock
 
 	// Values of -1 indicate don't care, i.e. no need to match.
-	alarm_pattern = drip_rtc_str2datetime("-1.-1.-1.-1.-1.-1.0");
+	hard_assert (drip_rtc_str2datetime(	"-1:-1:-1:-1:-1:-1:0",
+											&alarm_pattern, 1));
 	rtc_set_alarm(&alarm_pattern, timer_alarm);
 
 	// This function enables wifi station mode (to connect to other APs),

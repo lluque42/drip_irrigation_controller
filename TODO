@@ -1,26 +1,12 @@
 ################################################################################
 #### FOR NEXT COMMIT DESCRIPTION ###############################################
 
-The UDP server that receives and echoes bytes is working.
-	When a NUL terminated c-string "1" is received, the water relay coil is
-	energized, with "3" it's turned off. The same for the lights relay with
-	"2" (ON) and "4" (OFF).
+Improved drip_rtc_str2datetime() with more fool-proof error checking.
 
-The authentication type was added to the wlan_setup_data.cmake.template using
-the macros defined by cyw43:
+Added a struct type for the timers setting values and a function to
+load them from the buildtime macro values on timers_default_data.cmake.
 
-#define 	CYW43_AUTH_OPEN   (0)
-#define 	CYW43_AUTH_WPA_TKIP_PSK   (0x00200002)
-#define 	CYW43_AUTH_WPA2_AES_PSK   (0x00400004)
-#define 	CYW43_AUTH_WPA2_MIXED_PSK   (0x00400006)
-#define 	CYW43_AUTH_WPA3_SAE_AES_PSK   (0x01000004)
-#define 	CYW43_AUTH_WPA3_WPA2_AES_PSK
-
-A BUILD_TIME was generated at the cmake level and pass as a macro to initialize
-the RTC. Some new functions were added to manipulate the chosen format to set
-the time also via udp client request (very soon) and NTP (may be).
-
-Improvement of the specifications details (see TODO).
+The default settings from CMake macros are now loaded into the program.
 
 ################################################################################
 ################################################################################
@@ -51,11 +37,13 @@ Improvement of the specifications details (see TODO).
 	* Timed on irigation (TONW).
 
 * Put some data into the binary that may allow use it if code is lost.
+	* Include build_time
 * Keep the README.md promises.
 * Periodically check wifi link and attempt to re-connect.
 	* Half way there, may be the wifi_connected variable should be abandon
 	in favor of "int cyw43_wifi_link_status (cyw43_t *self, int itf)"
-* Try the interrupt approach which probable is less power consuming.
+* Try the interrupt approach for wlan which probably is less power consuming.
+* Please refactor the fool-proof drip_rtc_str2datetime()
 * Set up the watchdog.
 
 ################################################################################
@@ -87,5 +75,34 @@ Documentation updated.
 ################################################################################
 #### OLD COMMIT DESCRIPTIONS ###################################################
 
+
+
+
+
+The UDP server that receives and echoes bytes is working.
+	When a NUL terminated c-string "1" is received, the water relay
+	coil is	energized, with "3" it's turned off. The same for the
+	lights relay with "2" (ON) and "4" (OFF).
+
+The authentication type was added to the
+wlan_setup_data.cmake.template using the macros defined by cyw43:
+
+#define 	CYW43_AUTH_OPEN   (0)
+#define 	CYW43_AUTH_WPA_TKIP_PSK   (0x00200002)
+#define 	CYW43_AUTH_WPA2_AES_PSK   (0x00400004)
+#define 	CYW43_AUTH_WPA2_MIXED_PSK   (0x00400006)
+#define 	CYW43_AUTH_WPA3_SAE_AES_PSK   (0x01000004)
+#define 	CYW43_AUTH_WPA3_WPA2_AES_PSK
+
+A BUILD_TIME was generated at the cmake level and pass as a macro to
+initialize the RTC. Some new functions were added to manipulate the
+chosen format to set the time also via udp client request (very soon)
+and NTP (may be).
+
+Improvement of the specifications details (see TODO).
+
+Added as a submodule a repository to build a simple UDP client and a
+server to test the controller's ability to receive commands accross
+the network.
 
 

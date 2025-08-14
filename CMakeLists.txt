@@ -32,7 +32,7 @@ include(wlan_setup_data.cmake)
 # File with the default timers parameters.
 include(timers_default_data.cmake)
 
-string(TIMESTAMP BUILD_TIME "%Y.%m.%d.%w.%H.%M.%S")
+string(TIMESTAMP BUILD_TIME "%Y:%m:%d:%w:%H:%M:%S")
 add_compile_definitions(DRIP_BUILD_TIME=\"${BUILD_TIME}\")
 
 # WARNING!!! Statments order MATTERS!!!
@@ -67,6 +67,7 @@ pico_sdk_init()
 # do it to list all the files of the project.
 add_executable(drip
 	src/main.c
+	src/drip_load_settings.c
 	src/drip_wifi_init.c
 	src/drip_wifi_set_ip4_addr.c
 	src/drip_wifi_print_pbufchain.c
@@ -89,7 +90,7 @@ message(STATUS "BUILD_TIME: ${BUILD_TIME}")
 pico_enable_stdio_usb(drip ENABLED)
 
 # Enabled by default (I think), not used.
-pico_enable_stdio_uart(drip DISABLED)
+#pico_enable_stdio_uart(drip DISABLED)
 
 # This tells the compiler to look for headers in the same directory
 # the CMakeLists.txt is.

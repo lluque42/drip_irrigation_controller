@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 22:29:02 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 20:06:59 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/14 10:21:09 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ int	drip_rtc_init(void)
 {
 	datetime_t	time;
 	
-	time = drip_rtc_str2datetime(DRIP_BUILD_TIME);
-	drip_rtc_datetime_print(time);
+	hard_assert(drip_rtc_str2datetime(DRIP_BUILD_TIME, &time, 0));
+	//drip_rtc_datetime_print(time);
 	rtc_init();
 	if (!rtc_set_datetime(&time))
 	{
