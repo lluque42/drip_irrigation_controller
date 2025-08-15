@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:46:49 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/14 13:23:27 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/15 11:00:21 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 bool			on_board_led_status = 0;
 bool			wifi_connected = 0;
-t_drip_settings *drip_settings = NULL;
+uint64_t		time_offset_epoch_us = 0;
+int				print_settings_pending = 0;
 
 void	timer_alarm(void)
 {
@@ -31,9 +32,30 @@ void	timer_alarm(void)
 	}
 }
 
+bool	toggle_led_callback(repeating_timer_t *rt)
+{
+	if (wifi_connected)
+		sleep_ms(250);
+	else
+		sleep_ms(1500);
+	if (on_board_led_status)
+	{
+		cyw43_arch_gpio_put(ON_BOARD_LED, 0);
+		on_board_led_status = 0;
+	}
+	else
+	{
+		cyw43_arch_gpio_put(ON_BOARD_LED, 1);
+		on_board_led_status = 1;
+	}
+    return (true); // Keep repeating
+}
+
 int main()
 {
 	datetime_t	alarm_pattern;
+	t_drip_conf	*drip_settings;
+	repeating_timer_t toggle_led_timer;
 
 	stdio_init_all();
 	sleep_ms(1000);
@@ -43,10 +65,6 @@ int main()
 	on_board_led_status = 1;
 	drip_io_init();
 
-
-
-	drip_settings = drip_load_settings_default();
-	hard_assert(drip_settings != NULL);
 
 
 	hard_assert(drip_rtc_init());	// No way this could work without a clock
@@ -63,22 +81,18 @@ int main()
 	{
 		wifi_connected = 0;
 	}
+	drip_settings = drip_conf_load_settings_default();
+	hard_assert(drip_settings != NULL);
 	while (1)
 	{
 		cyw43_arch_poll();
-		if (wifi_connected)
-			sleep_ms(250);
-		else
-			sleep_ms(1500);
-		if (on_board_led_status)
+		
+		toggle_led_callback(NULL);
+		if (print_settings_pending)
 		{
-			cyw43_arch_gpio_put(ON_BOARD_LED, 0);
-			on_board_led_status = 0;
-		}
-		else
-		{
-			cyw43_arch_gpio_put(ON_BOARD_LED, 1);
-			on_board_led_status = 1;
+			print_settings_pending = 0;
+			printf("[main] A print_settings_pending\n");
+			drip_conf_print_settings(drip_settings);
 		}
 		/*
 		void cyw43_arch_wait_for_work_until (absolute_time_t until)
@@ -87,3 +101,5 @@ int main()
 	}
 	cyw43_arch_deinit();
 }
+/*
+*/

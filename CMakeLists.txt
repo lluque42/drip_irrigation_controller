@@ -67,7 +67,10 @@ pico_sdk_init()
 # do it to list all the files of the project.
 add_executable(drip
 	src/main.c
-	src/drip_load_settings.c
+	src/drip_conf_load_settings.c
+	src/drip_conf_set_next_timeofday_alarm.c
+	src/drip_conf_enforce_settings.c
+	src/drip_conf_print_settings.c
 	src/drip_wifi_init.c
 	src/drip_wifi_set_ip4_addr.c
 	src/drip_wifi_print_pbufchain.c
@@ -78,6 +81,9 @@ add_executable(drip
 	src/drip_rtc_datetime_print.c
 	src/drip_rtc_str2datetime.c
 	src/drip_exe_client_request.c
+	src/drip_exe_water_timed_on.c
+	src/drip_exe_lights_timed_on.c
+	src/drip_time_utils.c
 )
 
 message("[lluque CMakeLists] Some information:")

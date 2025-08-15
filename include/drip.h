@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:44:49 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/14 12:39:32 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/15 10:20:34 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,17 +79,19 @@ This is an umbrella header that includes:
 * dol_sec default: DRIP_LIGHTS_DURATION_SEC
 
 */
-typedef struct drip_settings
+typedef struct drip_conf
 {
 	char		wtod[DRIP_TIME_STR_MAX_SIZE];
 	datetime_t	wtod_alarm;
 	int			wexd;
 	int			dow_sec;
+	datetime_t	*next_water_activation;
 	char		ltod[DRIP_TIME_STR_MAX_SIZE];
 	datetime_t	ltod_alarm;
 	int			lexd;
 	int			dol_sec;
-} t_drip_settings;
+	datetime_t	*next_lights_activation;
+} t_drip_conf;
 
 
 
@@ -103,38 +105,71 @@ typedef struct drip_settings
 # define LIGHTS_REL_CTRL 21
 
 // Global variables defined in main.c
-extern bool				on_board_led_status;
-extern bool				wifi_connected;
-extern t_drip_settings	*drip_settings;
+extern bool		on_board_led_status;
+extern bool		wifi_connected;
+extern uint64_t	time_offset_epoch_us;
+extern int		print_settings_pending;
+/*
+ * This must be updated every time the rtc time is updated.
+ * This variable represents the amount of microseconds
+ * that the absolute_time_t counter is behind respective to
+ * the epoch time of the rtc.
+ */
+extern uint64_t			time_offset_epoch_us;
 
 // Sets the static ip address using the build macro defines in
 // the wlan_setup_data.cmake
-int						drip_wifi_set_ip4_addr(void);
+int			drip_wifi_init(void);
 
-int						drip_rtc_init(void);
+int			drip_wifi_set_ip4_addr(void);
 
-void					drip_io_init(void);
+void		drip_wifi_print_pbufchain(struct pbuf *pbuf);
 
-void					drip_wifi_print_pbufchain(struct pbuf *pbuf);
+void		drip_wifi_recv_callback(void *arg,
+									struct udp_pcb *pcb,
+									struct pbuf *p,
+									const ip_addr_t *addr,
+									u16_t port);
 
-void					drip_wifi_recv_callback(void *arg,
-												struct udp_pcb *pcb,
-												struct pbuf *p,
-												const ip_addr_t *addr,
-												u16_t port);
+int			drip_wifi_udp_server_init(void);
 
-int						drip_wifi_udp_server_init(void);
+void		drip_io_init(void);
 
-void					drip_rtc_datetime_print(datetime_t time);
+int			drip_rtc_init(void);
 
-int						drip_rtc_str2datetime(const char *timestr_period_field_delimiter,
-												datetime_t *time,
-												int has_dont_cares);
+void		drip_rtc_datetime_print(datetime_t time);
 
-int						drip_wifi_init(void);
+int			drip_rtc_str2datetime(const char *timestr_period_field_delimiter,
+									datetime_t *time,
+									int has_dont_cares);
 
-char					*drip_exe_client_request(char *request);
+int			drip_time_get_epochus_from_current_rtc_datetime(uint64_t *time);
 
-t_drip_settings			*drip_load_settings_default();
+int			drip_time_get_epochus_from_datetime(uint64_t *time,
+												datetime_t some_datetime);
+
+datetime_t	*drip_time_get_next_instant(datetime_t freq,
+										int each_x_days);
+
+int64_t		drip_exe_water_timed_on(alarm_id_t id, void *dow_sec);
+
+int64_t		drip_exe_water_timed_off(alarm_id_t id, void *arg);
+
+int64_t		drip_exe_lights_timed_on(alarm_id_t id, void *dol_sec);
+
+int64_t		drip_exe_lights_timed_off(alarm_id_t id, void *arg);
+
+char		*drip_exe_client_request(char *request);
+
+t_drip_conf	*drip_conf_load_settings_default();
+
+datetime_t	*drip_conf_set_next_timeofday_alarm(datetime_t time_of_day,
+												int each_x_days,
+												alarm_callback_t callback,
+												t_drip_conf *drip_settings);
+
+int			drip_conf_enforce_settings(t_drip_conf *drip_settings);
+
+void		drip_conf_print_settings(t_drip_conf *drip_settings);
 
 #endif

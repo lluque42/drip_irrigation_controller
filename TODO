@@ -1,18 +1,38 @@
 ################################################################################
 #### FOR NEXT COMMIT DESCRIPTION ###############################################
 
-Improved drip_rtc_str2datetime() with more fool-proof error checking.
 
-Added a struct type for the timers setting values and a function to
-load them from the buildtime macro values on timers_default_data.cmake.
+Activation and de-activation of relays by chaining alarm scheduling
+was added. The API used was the pico_time alarm pool that uses
+absolute time (usec since boot) so utils functions for time
+conversion amd manipulation were added (e.g. human-readable
+datetime_t struct to usec epoch; uint64 usec relative time offset
+of the absolute time to the usec epoc RTC at the time of setting)
+were added.
 
-The default settings from CMake macros are now loaded into the program.
 
 ################################################################################
 ################################################################################
 
 ################################################################################
 ### TODO's #####################################################################
+
+* struct datetime_t		to		time_t (epoch sec)		datetime_to_time()
+* time_t (epoch sec)	to		usec					* 1000000
+* Check lightsleep()
+The RP2040 can enter lightsleep() between timer interrupts to save power.
+If the board’s main job doesn’t require constant CPU activity, combine the heartbeat timer with machine.lightsleep() (MicroPython) or sleep_ms() in a low-power state (C SDK).
+
+The main loop calls sleep_ms() or better, __wfi() ("Wait For Interrupt"), which stops the CPU until the timer interrupt wakes it.
+
+Remember that other cwy43 function like sleep until cwy43
+
+
+
+
+* Make sure there are no memory leaks in the alarm chain
+
+
 
 * Define the settings, formats AND their defaults in the		CMakeLists.txt <<<<<<<<<<<<<<
 	* Irrigation time of day (IToD)
@@ -74,6 +94,23 @@ Documentation updated.
 
 ################################################################################
 #### OLD COMMIT DESCRIPTIONS ###################################################
+
+
+
+
+
+
+
+
+
+
+
+Improved drip_rtc_str2datetime() with more fool-proof error checking.
+
+Added a struct type for the timers setting values and a function to
+load them from the buildtime macro values on timers_default_data.cmake.
+
+The default settings from CMake macros are now loaded into the program.
 
 
 
