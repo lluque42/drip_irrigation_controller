@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 21:24:00 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 21:44:02 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/16 20:42:42 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 // This function should work for either the first connection or to re-connect
 // after losing the link to the access point.
-int	drip_wifi_init(void)
+int	drip_wifi_init(t_drip_conf *drip_settings)
 {
 	int	result;
 
@@ -29,8 +29,6 @@ int	drip_wifi_init(void)
 	if (result != 0)
 		return (printf("[drip_wifi_init] Couldn't connect to WiFi. Error: %d\n",
 				result), 0);
-	else
-		wifi_connected = 1;
 
 	// Setting the static IP address
 	if (!drip_wifi_set_ip4_addr())
@@ -42,7 +40,7 @@ int	drip_wifi_init(void)
 		return (0);
 	}
 	// Starting the server
-	if (!drip_wifi_udp_server_init())
+	if (!drip_wifi_udp_server_init(drip_settings))
 	{
 		printf("[drip_wifi_init] Couldn't initialized UDP server,\
 				shutting down the connection\n");

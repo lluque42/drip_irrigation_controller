@@ -6,13 +6,13 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 17:52:12 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 20:29:20 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/15 12:46:17 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-int	drip_wifi_udp_server_init(void)
+int	drip_wifi_udp_server_init(t_drip_conf *drip_settings)
 {
 	struct udp_pcb	*pcb;
 	ip_addr_t		ipaddr;
@@ -34,7 +34,7 @@ int	drip_wifi_udp_server_init(void)
 		printf("[drip_wifi_udp_server_init] Couldn't bind udp\n");
 		return (0);
 	}
-	udp_recv(pcb, drip_wifi_recv_callback, NULL);
+	udp_recv(pcb, drip_wifi_recv_callback, (void *)drip_settings);
 	printf("[drip_wifi_udp_server_init] UDP server correctly initialized\n");
 	return (1);
 }

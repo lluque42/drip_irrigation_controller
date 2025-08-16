@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 17:48:05 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 17:50:15 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/16 21:56:46 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	drip_wifi_print_pbufchain(struct pbuf *pbuf)
 	{
 		*((char *)pbuf->payload + pbuf->len - 1) = 0;
 		printf("pbuf:\n");
-		printf("\tpbuf->payload: %s\n", pbuf->payload);
+		printf("\tpbuf->payload: %s\n", (char *)pbuf->payload);
 		printf("\tpbuf->tot_len: %u\n", pbuf->tot_len);
 		printf("\tpbuf->len: %u\n", pbuf->len);
 		printf("\tpbuf->type_internal: %u\n", pbuf->type_internal);

@@ -6,13 +6,13 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 22:06:01 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/15 01:04:43 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/16 22:30:12 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-int	drip_time_get_epochus_from_current_rtc_datetime(uint64_t *time)
+int	drip_time_get_epochus_from_current_rtc_datetime(time_t *time)
 {
 	datetime_t	t;
 
@@ -24,11 +24,9 @@ int	drip_time_get_epochus_from_current_rtc_datetime(uint64_t *time)
 	return (1);
 }
 
-int	drip_time_get_epochus_from_datetime(uint64_t *time,
+int	drip_time_get_epochus_from_datetime(time_t *time,
 										datetime_t some_datetime)
 {
-	datetime_t	t;
-
 	if (!datetime_to_time(&some_datetime, time))	// pico/utils.h
 		return (0);
 	*time *= 1000000;

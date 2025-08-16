@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 08:38:38 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/15 10:57:38 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/16 22:54:50 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,9 @@ t_drip_conf	*drip_conf_load_settings_default()
 	if (s->lexd < DRIP_MIN_LEXD || s->lexd > DRIP_MAX_LEXD)
 		return (printf("Invalid value for DRIP_LIGHTS_EVERY_X_DAYS"),
 				free(s), NULL);
+	printf("[drip_conf_load_settings_default] 1\n");
 	hard_assert(drip_rtc_str2datetime(s->wtod, &s->wtod_alarm, 1));
+	printf("[drip_conf_load_settings_default] 2\n");
 	hard_assert(drip_rtc_str2datetime(s->ltod, &s->ltod_alarm, 1));
 	drip_conf_print_settings(s);
 	hard_assert(drip_conf_enforce_settings(s));

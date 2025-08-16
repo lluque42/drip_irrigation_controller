@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:30:52 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/11 22:05:28 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/16 21:56:06 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,10 @@ int	drip_wifi_set_ip4_addr(void)
 		printf("No network interface was found\n");
 		return (0);
 	}
-	printf("The original dhcp ip = %d (%s)\n",
-			interface->ip_addr,
+	printf("The original dhcp ip = %s\n",
 			ipaddr_ntoa(&interface->ip_addr));
 	netif_set_addr(interface, &addr, &mask, &gw);
-	printf("The new static ip = %d (%s)\n",
-			interface->ip_addr,
+	printf("The new static ip = %s\n",
 			ipaddr_ntoa(&interface->ip_addr));
 	return (1);
 }

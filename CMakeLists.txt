@@ -80,12 +80,20 @@ add_executable(drip
 	src/drip_rtc_init.c
 	src/drip_rtc_datetime_print.c
 	src/drip_rtc_str2datetime.c
+	src/drip_rtc_compute_rtc-alarms_offset.c
 	src/drip_exe_client_request.c
 	src/drip_exe_water_timed_on.c
 	src/drip_exe_lights_timed_on.c
 	src/drip_time_utils.c
 )
 
+# Append this compiler options,
+target_compile_options(drip PRIVATE
+    -Wall          # enable warnings
+    -Wextra        # more warnings
+    -Werror        # turn every warning into an error
+#   -O2            # optimization
+)
 message("[lluque CMakeLists] Some information:")
 message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
 message(STATUS "BUILD_TIME: ${BUILD_TIME}")
