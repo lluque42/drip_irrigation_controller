@@ -1,11 +1,17 @@
 # Drip irrigation controller
 
-## Content
+<img src="data/main.jpg">
 
-* Introduction
-* Building instructions
-* Directory tree
-* Hardware
+## Table of contents
+
+- [Introduction](#introductions)
+- [Building instructions](#building-instructions)
+- [WiFi connectivity](#wifi-connectivity)
+    - [UDP command messages](#udp-command-messages)
+- [Directory tree](#directory-tree)
+- [Hardware](#harware)
+
+------
 
 ## Introduction
 
@@ -15,10 +21,14 @@ configured for independent one-time-a-day activation to remain active during a
 configurable time. The frequency in terms of days between activations is also
 configurable. Any of the relays may be disabled which will stop their future scheduled activations.
 
+<img src="data/iso1.jpg">
+
 A default configuration is applied at building time (edit files 'CMakeLists.txt',
 'timers_default_data.cmake', and 'wlan_setup_data.cmake' to change it). The
 controller configuration (get and set) and manual activation may be done
 remotely through the wifi connection with simple UDP messages exchange.
+
+<img src="data/iso2.jpg">
 
 This is the second controller I've built for my house plants.
 The first was written in Python in a rush before going out on
@@ -26,6 +36,8 @@ a trip and worked perfectly. It had a dot matrix screen with
 a setup menu through microswitches; a real-time clock module,
 etc. But some years later it hangs a lot, outdoor installation
 always takes its toll.
+
+<img src="data/iso3.jpg">
 
 So I've decided to implement a new version that loses the screen
 in favor of a WiFi connection for keep-alive signaling against
@@ -35,7 +47,9 @@ This repository includes all the code and scripts to built the
 program in a Raspberry Pi Pico (1) W board. The schematics for
 the external hardware is also included.
 
-Luis Luque - 2025
+**Luis Luque - 2025**
+
+------
 
 ## Building instructions
 
@@ -55,22 +69,28 @@ Two files are included to allow an easy customization:
     the relays activation.
 
 Create a build directory and enter to it:
-`
+
+```bash
 drip_irrigation_controller $ mkdir build
 drip_irrigation_controller $ cd build
 drip_irrigation_controller/build $
-`
+```
+
 Once inside, execute cmake against the parent directory (where
 the CMakeLists.txt is):
-`
+
+```bash
 drip_irrigation_controller/build $ cmake ..
 drip_irrigation_controller/build $
-`
+```
+
 If no errors occurred, then a Makefile file should have been created
 in the build directory. Execute it to build the binaries.
-`
+
+```bash
 drip_irrigation_controller/build $ make
-`
+```
+
 If everything ok, a number of binary files should've been produced,
 among them a drip.elf or drip.uf2 ready to be loaded into the Pico W
 board.
@@ -83,6 +103,8 @@ the root of the pico-sdk directory.
 * Is your board really a Pico W (first generation)?
 * ?
 TODO
+
+------
 
 ## WiFi connectivity
 
@@ -101,29 +123,39 @@ that is, a string sent as the payload of the UDP datagram.
 
 A simple, dirty client (and a server) written to debug this program is included
 as a git sub-module in:
-`
+
+```bash
 drip_irrigation_controller/test/udp_tx_rx
-`
+```
+
 Since it is a submodule it should be initialized from the
 drip_irrigation_controller root directory by doing:
-`
+
+```bash
 drip_irrigation_controller $ git submodule update --init --recursive
-`
+```
+
 After that, both the client and server can be build with:
-`
+
+```bash
 drip_irrigation_controller/test/udp_tx_rx $ make
-`
+```
+
 Which places the binaries in the bin folder.
 
 To use the client to communicate over the wifi with  the irrigation controller
 (assuming the default values in the wlan_setup_data.cmake.template) just do:
-`
+
+```bash
 .../test/udp_tx_rx/bin $ ./udp_client 192.168.1.69 1234
-`
+```
+
 This will receive input from the stdin for the user to send text to the
 controller.
 
 The commands, their formats, and the expected replies are the following:
+
+------
 
 ### UDP command messages
 
@@ -175,6 +207,8 @@ The commands, their formats, and the expected replies are the following:
 For non get commands, expect a response of "done" if it was correctly processed
 or a custom human readable error message.
 
+------
+
 ## Directory tree
 
 TODO
@@ -222,17 +256,22 @@ TODO
         ├── tester.c  
         └── ...  
 
+------
+
 ## Hardware
 
 TODO
 
+<img src="data/top_bottom.png">
+
 Volts across led: 2,5 V 
 	With a 10K resistance and driven through the 2n3904 (100KOhm base to gpio)
-
 
 With USB 5V directly fed, the relay coil consumes 70mA
 	The pico restarts everytime te coil de-energizes, the diode requirement is
 	real.
+
+
 
 Had to replace the 100K base resistor with a 10K because with the realy coil
 current I guess the transistor couldn't remain polarized.

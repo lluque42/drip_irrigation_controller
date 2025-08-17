@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:46:49 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/17 00:34:53 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/17 01:47:15 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,6 @@ uint64_t		drip_time_offset_epoch_us = 0;
 
 void	drip_bin_set_program_metadata(void)
 {
-/*
-	bi_decl(bi_program_description("Drip irrigation controller. Designed to \
-control one relay for a water electrovalve and a second relay for ornament \
-lights. Both relays may be configured for independent one-time-a-day activation \
-to remain active during a configurable time. The frequency in terms of days \
-between activations is also configurable. Any of the relays may be disabled \
-which will stop their future scheduled activations. A default configuration was \
-done at building time (files 'CMakeLists.txt', 'timers_default_data.cmake', and \
-'wlan_setup_data.cmake'). The configuration (get and set) and manual activation \
-may be done remotely through the wifi connection with a simple UDP message exchange."));
-*/	
-	
-	
 	bi_decl(bi_program_description("Drip irrigation controller. Designed to \
 control one relay for a water electrovalve and a second relay for ornament \
 lights. Both may be configured for independent one-time-a-day activation \
