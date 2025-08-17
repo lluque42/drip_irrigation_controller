@@ -1,0 +1,24 @@
+# Name and password of your wifi network
+
+add_compile_definitions(DRIP_WIFI_SSID="your_network")
+add_compile_definitions(DRIP_WIFI_PASSWORD="your_password")
+
+# Only one of the following options must be uncommented.
+# It must match your wireless network authentication method.
+
+#add_compile_definitions(DRIP_WIFI_AUTH=CYW43_AUTH_OPEN)
+#add_compile_definitions(DRIP_WIFI_AUTH=CYW43_AUTH_WPA_TKIP_PSK)
+add_compile_definitions(DRIP_WIFI_AUTH=CYW43_AUTH_WPA2_AES_PSK)
+#add_compile_definitions(DRIP_WIFI_AUTH=CYW43_AUTH_WPA2_MIXED_PSK)
+#add_compile_definitions(DRIP_WIFI_AUTH=CYW43_AUTH_WPA3_SAE_AES_PSK)
+#add_compile_definitions(DRIP_WIFI_AUTH=CYW43_AUTH_WPA3_WPA2_AES_PSK)
+
+# Change for your desired static address for the controller.
+# Make sure your DRIP_IP4_ADDRESS is outside the pool of your DHCP server
+add_compile_definitions(DRIP_IP4_ADDRESS="192.168.1.69")
+# Your mask
+add_compile_definitions(DRIP_IP4_MASK="255.255.255.0")
+# Change to your router address
+add_compile_definitions(DRIP_IP4_DEF_GW="192.168.1.1")
+# The desired port for the UDP server (the client must point to it)
+add_compile_definitions(DRIP_IP4_UDP_PORT=1234)

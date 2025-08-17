@@ -1,6 +1,67 @@
 ################################################################################
 #### FOR NEXT COMMIT DESCRIPTION ###############################################
 
+Implemented the "every 0 days" option meaning do-not-schedule.
+
+Added more strict compilation flags and fixed every pending warning.
+
+A description and the repo url were added as binary metadata.
+
+Added a generic mechanism (beyond loading and applying the default
+settings) to allow the enforcement of new settings during runtime:
+cancel scheduled alarms, re-compute the RTC time offset,
+calculate new alarms, etc.
+
+Implemented the remote commands as plain-text ascii nul terminated
+C-strings as payloads of an UDP datagram. The README.md file was
+updated with the details. The commands can be tried using the simple
+UDP client added a few commits ago.
+
+A summary of the commands:
+* Set datetime:
+	SET:DATETIME:YYYY:MM:DD:dotw:HH:mm:SS
+		dotw: Day of the week 0-6. Sunday is 0.
+* Set water timer parameters:
+    SET:WATER:WTODHH:WTODmm:WTODSS:WEXD:DOW
+        TOD: Time of day when activation should occur.
+        EXD: Every X days, the X. Days between activations.
+        DO:  Duration of activation.
+* Set lights timer parameters
+    SET:LIGHTS:LTODHH:LTODmm:LTODSS:LEXD:DOL
+        TOD: Time of day when activation should occur.
+        EXD: Every X days, the X. Days between activations.
+        DO:  Duration of activation.
+* Get datetime:
+    GET:DATETIME
+        Response example: 2025:8:15:5:21:2:52
+		(see SET:DATETIME format).
+* Get water relay current configuration:
+    GET:WATER
+        Response example: 
+            21:0:0:1:120:2025:8:15:5:21:0:0
+        That is:
+            Time of day: 21:0:0
+            Every X days: 1
+            Duration (sec): 120
+            Next activation scheduled: 2025:8:16:6:21:0:0
+			(see SET:DATETIME format).
+* Get lights relay current configuration:
+    GET:LIGHTS 
+        Response example:
+            21:0:0:1:10800:2025:8:15:5:21:0:0
+        See GET:WATER format.
+* Manual on lights.
+	MANUALON:LIGHTS
+* Manual off lights.
+	MANUALOFF:LIGHTS
+* Manual on water.
+	MANUALON:WATER
+* Manual off water.
+	MANUALOFF:WATER
+* Timed on lights (Force turn on for the duration configured).
+	TIMEDON:LIGHTS
+* Timed on irigation (Force turn on for the duration configured).
+	TIMEDON:WATER
 
 
 ################################################################################
@@ -9,7 +70,43 @@
 ################################################################################
 ### TODO's #####################################################################
 
-* Keep the README.md promises.
+* Change wifi settings via UDP.
+	* Or may be set as AP at the beginning an listen with UDP to receive
+	wifi configurations.
+	* Also explore the pico_binary_info API (pdf SDK and examples) because it's
+	possible to declare a variable (constant actually) using macros which value
+	may be set by picotool on the binary itself. This can be an intermediate
+	solution to change settings without re-building or wifi.
+* Some considerations for low-power:
+	* Move out the polling mode for the wifi.
+	* Check out lightsleep()
+		The RP2040 can enter lightsleep() between timer interrupts to save power.
+		If the board’s main job doesn’t require constant CPU activity, combine
+		the heartbeat timer with machine.lightsleep() (MicroPython) or
+		sleep_ms() in a low-power state (C SDK).
+
+		The main loop calls sleep_ms() or better, __wfi()
+		("Wait For Interrupt"), which stops the CPU until the timer interrupt
+		wakes it.
+	* Remember that other cwy43 function like sleep until cwy43:
+	cyw43_arch_wait_for_work_until(). I guess this is used with the poll mode.
+* The function drip_conf_set_next_timeofday_alarm() is awful: Either return or
+pass by reference, or the water/light enum to know what to look for in settings.
+* Make sure there are no memory leaks in the alarm chain
+* Shouldnt drip_conf_load_settings.c use the same approach with errno as
+drip_rtc_str2datetime.c does? (but check the latter range values, way too
+permisive INT_MIN < hour < INT_MAX !?!?!!?
+* For the love of God, re-factor drip_exe_client_request.c
+* A Manual off should trigger deleting any off scheduled alarm?
+* Re-organize the rtc vs time vs utils functions.
+* Periodically check wifi link and attempt to re-connect.
+	* Half way there, may be the wifi_connected variable should be abandon
+	in favor of "int cyw43_wifi_link_status (cyw43_t *self, int itf)"
+* Try the interrupt approach for wlan which probably is less power consuming.
+* Set up the watchdog.
+* Flash the settings?
+* NTP?
+* OTA update?
 
 ################################################################################
 ################################################################################
@@ -17,7 +114,53 @@
 ################################################################################
 ### DONE TODO's ################################################################
 
+* Put some data into the binary that may allow use it if code is lost.
+	* Include build_time
+* 0 value for duration of water/lights should not be taken literally but
+interpreted as disabled.
+	* The exd (every x days) may be used for this, current min == 0 may be
+	I was thinking of doing that.
+		* Yup, it actually says so in the timers_default_data.cmake file,
+		but I don't remember having it implemented.
+* Keep the README.md promises.
+* Define the remote commands:							drip_exe_client_request.c <<<<<<<<<<<
+	* Set datetime.
+		SET:DATETIME:YYYY:MM:DD:HH:mm:SS
+	* Set water timer parameters (time of day, every X days, duration of watering)
+		SET:WATER:WTODHH:WTODmm:WTODSS:WEXD:DOW
+	* Set lights timer parameters (time of day, every X days, duration of watering)
+		SET:LIGHTS:LTODHH:LTODmm:LTODSS:LEXD:DOL
+	* Get datetime.
+		GET:DATETIME
+	* Get IToD IeXD DoI
+		GET:WATER
+	* Get LToD LeXD DoL.
+		GET:LIGHTS
+	* Manual on lights (MONL).
+		MANUALON:LIGHTS
+	* Manual off lights (MOFFL).
+		MANUALOFF:LIGHTS
+	* Manual on water (MONW).
+		MANUALON:WATER
+	* Manual off water (MOFFW).
+		MANUALOFF:WATER
+	* Timed on lights (TONL).
+		TIMEDON:LIGHTS
+	* Timed on irigation (TONW).
+		TIMEDON:WATER
 
+* Add the authentication types in my wlan setup cmake.
+* RTC:
+	* Find an easy way to get the system time with cmake in an amicable
+format to use in the code.
+	* The format should be friendly for: cmake, alarms, timers, ntc client.
+* Define the settings, formats AND their defaults in the		CMakeLists.txt <<<<<<<<<<<<<<
+	* Irrigation time of day (IToD)
+	* Irrigate every X days (IeXD)
+	* Duration of irrigation (DoI)
+	* Turn on lights time of day (LToD)
+	* Turn on lights every X days (LeXD)
+	* Duration of lights turned on (DoL)
 
 ################################################################################
 ################################################################################
@@ -33,5 +176,59 @@ Documentation updated.
 ################################################################################
 #### OLD COMMIT DESCRIPTIONS ###################################################
 
+Activation and de-activation of relays by chaining alarm scheduling
+was added. The API used was the pico_time alarm pool that uses
+absolute time (usec since boot) so utils functions for time
+conversion amd manipulation were added (e.g. human-readable
+datetime_t struct to usec epoch; uint64 usec relative time offset
+of the absolute time to the usec epoc RTC at the time of setting)
+were added.
+
+
+
+
+
+
+
+
+
+
+
+Improved drip_rtc_str2datetime() with more fool-proof error checking.
+
+Added a struct type for the timers setting values and a function to
+load them from the buildtime macro values on timers_default_data.cmake.
+
+The default settings from CMake macros are now loaded into the program.
+
+
+
+
+
+The UDP server that receives and echoes bytes is working.
+	When a NUL terminated c-string "1" is received, the water relay
+	coil is	energized, with "3" it's turned off. The same for the
+	lights relay with "2" (ON) and "4" (OFF).
+
+The authentication type was added to the
+wlan_setup_data.cmake.template using the macros defined by cyw43:
+
+#define 	CYW43_AUTH_OPEN   (0)
+#define 	CYW43_AUTH_WPA_TKIP_PSK   (0x00200002)
+#define 	CYW43_AUTH_WPA2_AES_PSK   (0x00400004)
+#define 	CYW43_AUTH_WPA2_MIXED_PSK   (0x00400006)
+#define 	CYW43_AUTH_WPA3_SAE_AES_PSK   (0x01000004)
+#define 	CYW43_AUTH_WPA3_WPA2_AES_PSK
+
+A BUILD_TIME was generated at the cmake level and pass as a macro to
+initialize the RTC. Some new functions were added to manipulate the
+chosen format to set the time also via udp client request (very soon)
+and NTP (may be).
+
+Improvement of the specifications details (see TODO).
+
+Added as a submodule a repository to build a simple UDP client and a
+server to test the controller's ability to receive commands accross
+the network.
 
 

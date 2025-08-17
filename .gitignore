@@ -1,0 +1,4 @@
+build/
+wlan_setup_data.cmake
+.*
+!.gitignore
