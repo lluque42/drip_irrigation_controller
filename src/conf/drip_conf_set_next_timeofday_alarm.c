@@ -22,12 +22,12 @@ datetime_t	*drip_conf_set_next_timeofday_alarm(datetime_t time_of_day,
 	time_t		target_abs_time_us;
 
 	target_datetime = drip_time_get_next_instant(time_of_day, each_x_days);
-	printf("Next instant for the alarm:\n");
-	drip_rtc_datetime_print(*target_datetime);
+	//printf("Next instant for the alarm:\n");
+	//drip_rtc_datetime_print(*target_datetime);
 	if (!drip_time_get_epochus_from_datetime(&target_abs_time_us,
 				*target_datetime))
 		return (NULL);
-	printf("(in epoch usec format: %lld)\n", target_abs_time_us);
+	//printf("(in epoch usec format: %lld)\n", target_abs_time_us);
 	//printf("(now is: %lld)\n", get_rtc_time(&now)));
 	*alarm_id = add_alarm_at(target_abs_time_us - drip_time_offset_epoch_us,
 							callback,

@@ -1,32 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   drip_rtc_datetime_print.c                          :+:      :+:    :+:   */
+/*   drip_time_get_epochus_from_current_rtc_dateti      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/13 20:03:50 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/13 20:04:05 by lluque           ###   ########.fr       */
+/*   Created: 2025/08/25 21:48:55 by lluque            #+#    #+#             */
+/*   Updated: 2025/08/25 21:52:31 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-void	drip_rtc_datetime_print(datetime_t time)
+int	drip_time_get_epochus_from_current_rtc_datetime(time_t *time)
 {
-	printf("\
-			year = %d\n\
-			month = %d\n\
-			day = %d\n\
-			dotw = %d\n\
-			hour = %d\n\
-			min = %d\n\
-			sec = %d\n",
-			time.year,
-			time.month,
-			time.day,
-			time.dotw, 
-			time.hour,
-			time.min,
-			time.sec);
+	datetime_t	t;
+
+	if (!rtc_get_datetime(&t))
+		return (0);
+	if (!drip_time_get_epochus_from_datetime(time, t))
+		return (0);
+	return (1);
 }

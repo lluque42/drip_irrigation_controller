@@ -65,8 +65,8 @@ Two files are included to allow an easy customization:
 * wlan_setup_data.cmake.template (rename to wlan_setup_data.cmake)
     * To enter the wifi SSID, password.
 * timers_default_data.cmake
-    * To enter the time of the day, frequency and duration for
-    the relays activation.
+* To enter the time of the day, frequency and duration for
+the relays activation.
 
 Create a build directory and enter to it:
 
@@ -118,8 +118,8 @@ a simple text UDP server. That is, it will open the UDP port listening for
 incoming messages. A set of message formats define commands and responses
 that may be sent to the controller and back.
 
-The messages are plain-text ASCII, human readable, NUL-terminated C string,
-that is, a string sent as the payload of the UDP datagram.
+The messages are plain-text ASCII, human readable, strings (without the NUL
+termination), that is, a string sent as the payload of the UDP datagram.
 
 A simple, dirty client (and a server) written to debug this program is included
 as a git sub-module in:
@@ -159,6 +159,10 @@ The commands, their formats, and the expected replies are the following:
 
 ### UDP command messages
 
+Below are the recognized command messages and their replies. The client
+just need to write and read this as the payload of UDP messages to/from
+the controller that acts as a server on the IP address and UDP port set
+in the wlan_setup_data.cmake at build time.
 * Set datetime:
 	SET:DATETIME:YYYY:MM:DD:dotw:HH:mm:SS
 		dotw: Day of the week 0-6. Sunday is 0.

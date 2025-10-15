@@ -1,68 +1,14 @@
 ################################################################################
 #### FOR NEXT COMMIT DESCRIPTION ###############################################
 
-Implemented the "every 0 days" option meaning do-not-schedule.
+FIX wifi unresponsive after a day
 
-Added more strict compilation flags and fixed every pending warning.
+The lwiopts.h was modified to disable the DHCP. The static
+address is configured before connecting to the WLAN. This
+proved to be the solution for the freezing of the wifi
+connection after some time working fine.
 
-A description and the repo url were added as binary metadata.
-
-Added a generic mechanism (beyond loading and applying the default
-settings) to allow the enforcement of new settings during runtime:
-cancel scheduled alarms, re-compute the RTC time offset,
-calculate new alarms, etc.
-
-Implemented the remote commands as plain-text ascii nul terminated
-C-strings as payloads of an UDP datagram. The README.md file was
-updated with the details. The commands can be tried using the simple
-UDP client added a few commits ago.
-
-A summary of the commands:
-* Set datetime:
-	SET:DATETIME:YYYY:MM:DD:dotw:HH:mm:SS
-		dotw: Day of the week 0-6. Sunday is 0.
-* Set water timer parameters:
-    SET:WATER:WTODHH:WTODmm:WTODSS:WEXD:DOW
-        TOD: Time of day when activation should occur.
-        EXD: Every X days, the X. Days between activations.
-        DO:  Duration of activation.
-* Set lights timer parameters
-    SET:LIGHTS:LTODHH:LTODmm:LTODSS:LEXD:DOL
-        TOD: Time of day when activation should occur.
-        EXD: Every X days, the X. Days between activations.
-        DO:  Duration of activation.
-* Get datetime:
-    GET:DATETIME
-        Response example: 2025:8:15:5:21:2:52
-		(see SET:DATETIME format).
-* Get water relay current configuration:
-    GET:WATER
-        Response example: 
-            21:0:0:1:120:2025:8:15:5:21:0:0
-        That is:
-            Time of day: 21:0:0
-            Every X days: 1
-            Duration (sec): 120
-            Next activation scheduled: 2025:8:16:6:21:0:0
-			(see SET:DATETIME format).
-* Get lights relay current configuration:
-    GET:LIGHTS 
-        Response example:
-            21:0:0:1:10800:2025:8:15:5:21:0:0
-        See GET:WATER format.
-* Manual on lights.
-	MANUALON:LIGHTS
-* Manual off lights.
-	MANUALOFF:LIGHTS
-* Manual on water.
-	MANUALON:WATER
-* Manual off water.
-	MANUALOFF:WATER
-* Timed on lights (Force turn on for the duration configured).
-	TIMEDON:LIGHTS
-* Timed on irigation (Force turn on for the duration configured).
-	TIMEDON:WATER
-
+Some refactorization was made.
 
 ################################################################################
 ################################################################################
@@ -70,6 +16,53 @@ A summary of the commands:
 ################################################################################
 ### TODO's #####################################################################
 
+Finally the wifi:
+* Always check if there are chained pbuf in order to read them and free them.
+	* Not needed, apparently. pbuf_free() already:
+   	"Dereference a pbuf chain or queue and deallocate any no-longer-used pbufs at the head of this chain or queue...
+	For a pbuf chain, this is repeated for each pbuf in the chain, up to the first pbuf which has a non-zero reference
+	count after decrementing. So, when all reference counts are one, the whole chain is free'd."
+
+* Changed drip_exe_client_request() to receive and return a pbuf
+instead of strings. Now the received pbuf is not edited by strtok_r().
+
+
+
+233 283 333
+
+
+
+
+
+
+
+
+
+
+
+* In main the cyw43_arch_init() may fail but in drip_wifi_init() it is assumed
+that the cyw43 is already initialized.
+* Check if drip_time_get_next_instant() is called before wasting time (i.e.
+when entering the callback).
+* The wifi settings and the server settings (the port) should also be represented
+in the settings struct.
+* Bug:
+	SET:DATETIME:2025:8:17:0:13:20  
+	Something was read from stdin
+	Something was written to the socket
+	This was received back: 'Couldn't set time, err1'
+* Remove the usb support before main commits.
+* Pull the commit of the UDP client/server that has no '\0' char in
+the UDP payloads.
+* Design a policy for error checkings, what to do with them, how and
+were to send them. Keep in mind the interrupts/callbacks issues with
+printf and other functions. May be always write(), may be only to uart
+(assuming a lot), may be defines for debug time...
+* Shouldnt drip_conf_cancel_all_alarms() also free and null the field
+with the next time??
+* Mutex equivalent for accessing shared data (e.g. globals and the settings
+struct).
+* Split the setiings struct into real settings and runtime variables.
 * Change wifi settings via UDP.
 	* Or may be set as AP at the beginning an listen with UDP to receive
 	wifi configurations.
@@ -175,6 +168,108 @@ Documentation updated.
 
 ################################################################################
 #### OLD COMMIT DESCRIPTIONS ###################################################
+
+Commented out every printf() call for debugging in the wifi callback
+since it's probably not safe. Same thing with the alarm callbacks and
+to be sure in a lot of places that may be called from callbacks in
+the future.
+
+The function drip_conf_cancel_all_alarms() was placed in its own
+file The same was done for several time functions.
+
+Some re-factorization was performed.
+
+Got rid of the terminating NUL char for compatibility with android UDP
+application.
+
+The drip_wifi_set_ip4_addr() function was changed to be more generic
+by accepting arguments instead of getting the values from the defines.
+
+A call to cyw43_arch_wait_for_work_until() was introduced in the main
+loop to add a delay between pollings to CYW43 that were causing the
+serve to stall over time.
+
+A value of -1 was chosen for an invalid alarm and it is checked before
+cancelling it. The alarm callbacks set their corresponding fields in the
+settings struct to -1
+(e.g. drip_settings->lights_manual_next_off_alarm_id = -1 in
+function drip_exe_water_manual_off()).
+
+
+
+
+
+
+
+Implemented the "every 0 days" option meaning do-not-schedule.
+
+Added more strict compilation flags and fixed every pending warning.
+
+A description and the repo url were added as binary metadata.
+
+Added a generic mechanism (beyond loading and applying the default
+settings) to allow the enforcement of new settings during runtime:
+cancel scheduled alarms, re-compute the RTC time offset,
+calculate new alarms, etc.
+
+Implemented the remote commands as plain-text ascii nul terminated
+C-strings as payloads of an UDP datagram. The README.md file was
+updated with the details. The commands can be tried using the simple
+UDP client added a few commits ago.
+
+A summary of the commands:
+* Set datetime:
+	SET:DATETIME:YYYY:MM:DD:dotw:HH:mm:SS
+		dotw: Day of the week 0-6. Sunday is 0.
+* Set water timer parameters:
+    SET:WATER:WTODHH:WTODmm:WTODSS:WEXD:DOW
+        TOD: Time of day when activation should occur.
+        EXD: Every X days, the X. Days between activations.
+        DO:  Duration of activation.
+* Set lights timer parameters
+    SET:LIGHTS:LTODHH:LTODmm:LTODSS:LEXD:DOL
+        TOD: Time of day when activation should occur.
+        EXD: Every X days, the X. Days between activations.
+        DO:  Duration of activation.
+* Get datetime:
+    GET:DATETIME
+        Response example: 2025:8:15:5:21:2:52
+		(see SET:DATETIME format).
+* Get water relay current configuration:
+    GET:WATER
+        Response example: 
+            21:0:0:1:120:2025:8:15:5:21:0:0
+        That is:
+            Time of day: 21:0:0
+            Every X days: 1
+            Duration (sec): 120
+            Next activation scheduled: 2025:8:16:6:21:0:0
+			(see SET:DATETIME format).
+* Get lights relay current configuration:
+    GET:LIGHTS 
+        Response example:
+            21:0:0:1:10800:2025:8:15:5:21:0:0
+        See GET:WATER format.
+* Manual on lights.
+	MANUALON:LIGHTS
+* Manual off lights.
+	MANUALOFF:LIGHTS
+* Manual on water.
+	MANUALON:WATER
+* Manual off water.
+	MANUALOFF:WATER
+* Timed on lights (Force turn on for the duration configured).
+	TIMEDON:LIGHTS
+* Timed on irigation (Force turn on for the duration configured).
+	TIMEDON:WATER
+
+
+
+
+
+
+
+
 
 Activation and de-activation of relays by chaining alarm scheduling
 was added. The API used was the pico_time alarm pool that uses

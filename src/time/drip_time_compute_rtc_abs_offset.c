@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   drip_rtc_compute_rtc-alarms_offset.c               :+:      :+:    :+:   */
+/*   drip_time_compute_rtc_abs_offset.c                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 13:12:35 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/16 22:27:47 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/25 21:42:34 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-uint64_t	drip_rtc_compute_rtc_alarms_offset(void)
+uint64_t	drip_time_compute_rtc_abs_offset(void)
 {
 	absolute_time_t	time_since_boot_us;
 	time_t			time_rtc_epoch_us;

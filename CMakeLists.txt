@@ -66,25 +66,29 @@ pico_sdk_init()
 # Placing header files here makes no difference but some IDEs
 # do it to list all the files of the project.
 add_executable(drip
-	src/main.c
-	src/drip_conf_load_settings.c
-	src/drip_conf_set_next_timeofday_alarm.c
-	src/drip_conf_enforce_settings.c
-	src/drip_conf_print_settings.c
-	src/drip_wifi_init.c
-	src/drip_wifi_set_ip4_addr.c
-	src/drip_wifi_print_pbufchain.c
-	src/drip_wifi_recv_callback.c
-	src/drip_wifi_udp_server_init.c
-	src/drip_io_init.c
-	src/drip_rtc_init.c
-	src/drip_rtc_datetime_print.c
-	src/drip_rtc_str2datetime.c
-	src/drip_rtc_compute_rtc-alarms_offset.c
-	src/drip_exe_client_request.c
-	src/drip_exe_water_timed_on.c
-	src/drip_exe_lights_timed_on.c
-	src/drip_time_utils.c
+	src/drip_main.c
+	src/conf/drip_conf_load_settings_default.c
+	src/conf/drip_conf_set_next_timeofday_alarm.c
+	src/conf/drip_conf_enforce_settings.c
+	src/conf/drip_conf_print_settings.c
+	src/conf/drip_conf_cancel_all_alarms.c
+	src/wifi/drip_wifi_init.c
+	src/wifi/drip_wifi_set_ip4_addr.c
+	src/wifi/drip_wifi_print_pbufchain.c
+	src/wifi/drip_wifi_recv_callback.c
+	src/wifi/drip_wifi_udp_server_init.c
+	src/io/drip_io_init.c
+	src/time/drip_time_rtc_init.c
+	src/time/drip_time_print_datetime.c
+	src/time/drip_time_str2datetime.c
+	src/time/drip_time_compute_rtc_abs_offset.c
+	src/time/drip_time_get_epochus_from_datetime.c
+	src/time/drip_time_get_epochus_from_current_rtc_datetime.c
+	src/time/drip_time_get_next_instant.c
+	src/exe/drip_exe_client_request.c
+	src/exe/drip_exe_water_timed_on.c
+	src/exe/drip_exe_lights_timed_on.c
+	src/bin/drip_bin_set_program_metadata.c
 )
 
 # Append this compiler options,
@@ -140,5 +144,8 @@ pico_add_extra_outputs(drip)
 target_link_libraries(drip
 	pico_stdlib
 	hardware_rtc
+	pico_lwip						# The main pico_lwip library itself aggregates the lwIP RAW API: pico_lwip_core, pico_lwip_core4, pico_lwip_core6, pico_lwip_api, pico_lwip_netif, pico_lwip_sixlowpan and pico_lwip_ppp.
+	pico_lwip_nosys					# Glue library for integration lwIP in NO_SYS=1 mode with the SDK.
+	pico_lwip_arch					# lwIP compiler adapters. This is not included by default in pico_lwip in case you wish to implement your own.
 	pico_cyw43_arch_lwip_poll)		# The traditional polling option
-#pico_cyw43_arch_lwip_threadsafe_background)	# With interrupts
+	#pico_cyw43_arch_lwip_threadsafe_background)	# With interrupts

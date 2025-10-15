@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 08:38:38 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/16 22:54:50 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/25 21:37:34 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,18 @@ t_drip_conf	*drip_conf_load_settings_default()
 	if (s->lexd < DRIP_MIN_LEXD || s->lexd > DRIP_MAX_LEXD)
 		return (printf("Invalid value for DRIP_LIGHTS_EVERY_X_DAYS"),
 				free(s), NULL);
-	printf("[drip_conf_load_settings_default] 1\n");
-	hard_assert(drip_rtc_str2datetime(s->wtod, &s->wtod_alarm, 1));
-	printf("[drip_conf_load_settings_default] 2\n");
-	hard_assert(drip_rtc_str2datetime(s->ltod, &s->ltod_alarm, 1));
-	drip_conf_print_settings(s);
+	//printf("[drip_conf_load_settings_default] 1\n");
+	hard_assert(drip_time_str2datetime(s->wtod, &s->wtod_alarm, 1));
+	//printf("[drip_conf_load_settings_default] 2\n");
+	hard_assert(drip_time_str2datetime(s->ltod, &s->ltod_alarm, 1));
+	//drip_conf_print_settings(s);
 	hard_assert(drip_conf_enforce_settings(s));
+	s->water_timed_next_on_alarm_id = -1;
+	s->lights_timed_next_on_alarm_id = -1;
+	s->water_timed_next_off_alarm_id = -1;
+	s->lights_timed_next_off_alarm_id = -1;
+	s->water_manual_next_off_alarm_id = -1;
+	s->lights_manual_next_off_alarm_id = -1;
 	return (s);
 }
 //	target_datetime = drip_time_get_next_instant(drip_settings->wtod_alarm);

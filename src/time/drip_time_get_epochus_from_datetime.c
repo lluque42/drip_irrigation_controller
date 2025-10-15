@@ -1,31 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   drip_rtc_init.c                                    :+:      :+:    :+:   */
+/*   drip_time_get_epochus_from_datetime.c              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 22:29:02 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/16 22:08:13 by lluque           ###   ########.fr       */
+/*   Created: 2025/08/25 21:45:17 by lluque            #+#    #+#             */
+/*   Updated: 2025/08/25 21:48:45 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "drip.h"
 
-int	drip_rtc_init(void)
+int	drip_time_get_epochus_from_datetime(time_t *time,
+										datetime_t some_datetime)
 {
-	datetime_t		time;
-
-	hard_assert(drip_rtc_str2datetime(DRIP_BUILD_TIME, &time, 0));
-	//drip_rtc_datetime_print(time);
-	rtc_init();
-	hard_assert(rtc_set_datetime(&time));
-	sleep_ms(500);
-	if (!rtc_running())
-	{
-		printf("After setting the time the RTC is not running\n");
+	if (!datetime_to_time(&some_datetime, time))	// pico/utils.h
 		return (0);
-	}
-	drip_time_offset_epoch_us = drip_rtc_compute_rtc_alarms_offset();
+	*time *= 1000000;
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 17:50:21 by lluque            #+#    #+#             */
-/*   Updated: 2025/08/16 21:57:22 by lluque           ###   ########.fr       */
+/*   Updated: 2025/08/25 23:27:35 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,34 +30,25 @@ void	drip_wifi_recv_callback(void *arg,
 								const ip_addr_t *addr,
 								u16_t port)
 {
-	err_t		status;
-	struct pbuf	*reply_buf;
-	char		*reply_to_client;
+	//err_t		status;
+	struct pbuf	*reply_pbuf;
 	t_drip_conf	*drip_settings;
 	
 	drip_settings = (t_drip_conf *)arg;
-	// Since we transmit chars (a string), here we make sure the NUL char is
-	// actually '\0'. I don't know why yet but the same happens in the udp
-	// client I made for debugging.
-	*((char *)p->payload + p->len - 1) = 0;
-	printf("[drip_wifi_recv_callback] %s:%u has sent '%s'\n",
-			ipaddr_ntoa(addr), port, (char *)p->payload);
 	//drip_wifi_print_pbufchain(p);
-	reply_to_client = drip_exe_client_request((char *)p->payload, drip_settings);
+	reply_pbuf = drip_exe_client_request(p, drip_settings);
 	pbuf_free(p);
-	reply_buf = pbuf_alloc(	PBUF_TRANSPORT,
-							strlen(reply_to_client) + 1,
-							PBUF_RAM);
-	memcpy(reply_buf->payload, (void *)reply_to_client, reply_buf->len);
-	free(reply_to_client);
 	// Using this instead of udp_send(), allows me to reply without a new
 	// pcb for the client, and without changing the state of the server's
 	// pcb which is actually bound (and we wanna keep it that way).
-	status = udp_sendto(pcb, reply_buf, addr, port);
+	udp_sendto(pcb, reply_pbuf, addr, port);
+	/*
+	status = 
 	if (status != ERR_OK)
 		printf("[drip_wifi_recv_callback] Couldn't send back (err = %d)\n",
 				status);
 	// must de-allocate pbuf, otherwise it gets full and refuses connection
-	pbuf_free(reply_buf);
+	*/
+	pbuf_free(reply_pbuf);
 }
 //printf("[drip_wifi_recv_callback] %d pbufs de-allocated\n", pbuf_free(p));
