@@ -6,7 +6,7 @@
 /*   By: lluque <lluque@student.42malaga.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 21:44:49 by lluque            #+#    #+#             */
-/*   Updated: 2025/10/15 10:59:38 by lluque           ###   ########.fr       */
+/*   Updated: 2025/11/12 13:46:09 by lluque           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ This is an umbrella header that includes:
 # define ON_BOARD_LED CYW43_WL_GPIO_LED_PIN
 
 // Th gpio for the electrovalve relay control
-# define EV_REL_CTRL 22
-# define LIGHTS_REL_CTRL 21
+# define EV_REL_CTRL 6
+# define LIGHTS_REL_CTRL 5
 
 // Global variables defined in main.c
 /*
